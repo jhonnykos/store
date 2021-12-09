@@ -16,7 +16,7 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class GetProductTest {
+public class GetProductTests {
     public static final String PRODUCT_ENDPOINT = "products/{id}";
     public static final String PRODUCT_ENDPOINT_ALL = "products";
 
@@ -49,7 +49,7 @@ public class GetProductTest {
                 .body(product.toString())
                 .header("Content-Type", "application/json")
                 .when()
-                .post("http://80.78.248.82:8189/market/api/v1/products")
+                .post(PRODUCT_ENDPOINT_ALL)
                 .prettyPeek()
                 .jsonPath()
                 .get("id");
@@ -117,21 +117,6 @@ public class GetProductTest {
                 .log()
                 .body()
                 .get(PRODUCT_ENDPOINT, -id)
-                .prettyPeek();
-        assertThat(response.statusCode(), equalTo(404));
-    }
-
-    @Test
-    public void getProductEmptyId() {
-        Response response = given()
-                .when()
-                .log()
-                .method()
-                .log()
-                .uri()
-                .log()
-                .body()
-                .get(PRODUCT_ENDPOINT, "")
                 .prettyPeek();
         assertThat(response.statusCode(), equalTo(404));
     }

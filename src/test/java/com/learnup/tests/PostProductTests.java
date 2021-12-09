@@ -2,16 +2,12 @@ package com.learnup.tests;
 
 import com.learnup.dto.Product;
 import io.restassured.RestAssured;
-import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 
 import static com.learnup.tests.CategoryTests.properties;
 import static io.restassured.RestAssured.given;
