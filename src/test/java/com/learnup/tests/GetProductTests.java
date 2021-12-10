@@ -1,5 +1,6 @@
 package com.learnup.tests;
 
+import com.github.javafaker.Faker;
 import com.learnup.dto.Product;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
 import static com.learnup.tests.CategoryTests.properties;
 import static io.restassured.RestAssured.given;
@@ -22,23 +24,18 @@ public class GetProductTests {
 
     private Product product;
     private Integer id;
-    private Integer price;
-    private String title;
-    private String categoryTitle;
 
     @BeforeEach
     public void setUp() throws IOException {
         properties.load(new FileInputStream("src/test/resources/application.properties"));
         RestAssured.baseURI = properties.getProperty("baseUri");
 
-        price = 500;
-        title = "Tomato";
-        categoryTitle = "Food";
+        Faker faker = new Faker();
 
         product = Product.builder()
-                .price(price)
-                .title(title)
-                .categoryTitle(categoryTitle)
+                .price(500)
+                .title(faker.food().dish())
+                .categoryTitle("Food")
                 .build();
 
         postProduct();
@@ -46,13 +43,14 @@ public class GetProductTests {
 
     public void postProduct() {
         id = given()
-                .body(product.toString())
+                .body(product)
                 .header("Content-Type", "application/json")
                 .when()
                 .post(PRODUCT_ENDPOINT_ALL)
                 .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .body()
+                .as(Product.class)
+                .getId();
     }
 
     @Test
@@ -60,14 +58,12 @@ public class GetProductTests {
         Response response = given()
                 .when()
                 .log()
-                .method()
-                .log()
-                .uri()
-                .log()
-                .body()
+                .all()
                 .get(PRODUCT_ENDPOINT_ALL)
                 .prettyPeek();
+        List responseBody = response.body().as(List.class);
         assertThat(response.statusCode(), equalTo(200));
+        assertThat(responseBody.size() >= 1, equalTo(true));
     }
 
     @Test
@@ -82,11 +78,12 @@ public class GetProductTests {
                 .body()
                 .get(PRODUCT_ENDPOINT, id)
                 .prettyPeek();
+        Product responseBody = response.as(Product.class);
         assertThat(response.statusCode(), equalTo(200));
-        assertThat(response.body().jsonPath().get("id"), equalTo(id));
-        assertThat(response.body().jsonPath().get("title"), equalTo(title));
-        assertThat(response.body().jsonPath().get("categoryTitle"), equalTo(categoryTitle));
-        assertThat(response.body().jsonPath().get("price"), equalTo(price));
+        assertThat(responseBody.getId(), equalTo(id));
+        assertThat(responseBody.getTitle(), equalTo(product.getTitle()));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
     }
 
     @Test

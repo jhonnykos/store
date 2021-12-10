@@ -1,5 +1,6 @@
 package com.learnup.tests;
 
+import com.learnup.dto.Category;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
@@ -13,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.learnup.enums.CategoryType.FOOD;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,9 +58,9 @@ public class CategoryTests {
                 .body()
                 .get(CATEGORY_ENDPOINT,3)
                 .prettyPeek();
-//        assertThat(response.statusCode(),equalTo(200));
+//      assertThat(response.statusCode(),equalTo(200));
         assertThat(response.body().jsonPath().get("products[0].categoryTitle"), equalTo("Food"));
-//        assertThat(validatableResponse.body("id", equalTo(3)), is(true));
+//      assertThat(validatableResponse.body("id", equalTo(3)), is(true));
     }
 
     @Test
@@ -76,5 +78,44 @@ public class CategoryTests {
 //        assertThat(response.statusCode(),equalTo(200));
 //        assertThat(response.body().jsonPath().get("products[0].categoryTitle"), equalTo("Food"));
 //        assertThat(validatableResponse.body("id", equalTo(3)), is(true));
+    }
+
+    @Test
+    public void getCategoryWithAsserts(){
+        Response response = given()
+                .when()
+                .log()
+                .method()
+                .log()
+                .uri()
+                .log()
+                .body()
+                .get(CATEGORY_ENDPOINT,1)
+                .prettyPeek();
+        Category responseBody = response.body().as(Category.class);
+        assertThat(responseBody.getProducts().get(0).getCategoryTitle(), equalTo("Food"));
+//      assertThat(validatableResponse.body("id", equalTo(3)), is(true));
+    }
+
+    @Test
+    public void getCategoryWithAssertsAfterTests() {
+        Category response = given()
+                .log()
+                .method()
+                .log()
+                .uri()
+                .log()
+                .body()
+                .expect()
+                .statusCode(200)
+                .when()
+                .get(CATEGORY_ENDPOINT, FOOD.getId())
+                .prettyPeek()
+                .body()
+                .as(Category.class);
+
+        response.getProducts().forEach(
+                e -> assertThat(e.getCategoryTitle(), equalTo(FOOD.getCategoryName()))
+        );
     }
 }

@@ -1,7 +1,9 @@
 package com.learnup.tests;
 
+import com.github.javafaker.Faker;
 import com.learnup.dto.Product;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,283 +14,318 @@ import java.io.IOException;
 import static com.learnup.tests.CategoryTests.properties;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PostProductTests {
     public static final String PRODUCT_ENDPOINT = "products";
 
     private Product product;
     private Integer id;
-    private Integer price;
-    private String title;
-    private String categoryTitle;
 
     @BeforeEach
     void setUp() throws IOException {
         properties.load(new FileInputStream("src/test/resources/application.properties"));
         RestAssured.baseURI = properties.getProperty("baseUri");
 
-        price = 300;
-        title = "Egg";
-        categoryTitle = "Food";
-
+        Faker faker = new Faker();
         product = Product.builder()
-                .price(price)
-                .title(title)
-                .categoryTitle(categoryTitle)
+                .price(300)
+                .title(faker.food().dish())
+                .categoryTitle("Food")
                 .build();
     }
 
     @Test
     public void postProductPositive() {
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(201)
-                .body("title", equalTo(title), "price", equalTo(price),
-                        "categoryTitle", equalTo(categoryTitle))
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(201));
+        assertThat(id, is(not(nullValue())));
+        assertThat(responseBody.getTitle(), equalTo(product.getTitle()));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getCategoryTitle(), equalTo(product.getCategoryTitle()));
     }
 
     @Test
     public void postProductNegativePrice() {
-        product.setPrice(-price);
-        id = given()
-                .body(product.toString())
+        product.setPrice(-500);
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductZeroPrice() {
         product.setPrice(0);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductNullPrice() {
         product.setPrice(null);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductTitleWithSpaces() {
-        title = "Bean sprout";
+        String title = "Bean sprout";
         product.setTitle(title);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(201)
-                .body("title", equalTo(title))
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(201));
+        assertThat(id, is(not(nullValue())));
+        assertThat(responseBody.getTitle(), equalTo(title));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getCategoryTitle(), equalTo(product.getCategoryTitle()));
     }
 
     @Test
     public void postProductTitleWithTrailingSpace() {
-        title = " " + title;
+        String title = "Egg ";
         product.setTitle(title);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(201)
-                .body("title", equalTo(title.trim()))
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(201));
+        assertThat(id, is(not(nullValue())));
+        assertThat(responseBody.getTitle(), equalTo(title.trim()));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getCategoryTitle(), equalTo(product.getCategoryTitle()));
     }
 
     @Test
     public void postProductTitleWithLeadingSpace() {
-        title += " ";
+        String title = " Egg";
         product.setTitle(title);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(201)
-                .body("title", equalTo(title.trim()))
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(201));
+        assertThat(id, is(not(nullValue())));
+        assertThat(responseBody.getTitle(), equalTo(title.trim()));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getCategoryTitle(), equalTo(product.getCategoryTitle()));
     }
 
     @Test
     public void postProductEmptyTitle() {
-        title = "";
+        String title = "";
         product.setTitle(title);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductNullTitle() {
-        title = null;
+        String title = null;
         product.setTitle(title);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductNumberTitle() {
-        title = "45";
+        String title = "45";
         product.setTitle(title);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductInvalidCategory() {
-        categoryTitle = "Car";
+        String categoryTitle = "Car";
         product.setCategoryTitle(categoryTitle);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
+    }
+
+    @Test
+    public void postProductCategoryWithLeadingSpace() {
+        String categoryTitle = " Food";
+        product.setCategoryTitle(categoryTitle);
+        Response response = given()
+                .body(product)
+                .header("Content-Type", "application/json")
+                .log()
+                .all()
+                .when()
+                .post(PRODUCT_ENDPOINT)
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(201));
+        assertThat(id, is(not(nullValue())));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getTitle(), equalTo(product.getTitle()));
+        assertThat(responseBody.getCategoryTitle(), equalTo(categoryTitle.trim()));
+    }
+
+
+    @Test
+    public void postProductCategoryWithTrailingSpace() {
+        String categoryTitle = "Food ";
+        product.setCategoryTitle(categoryTitle);
+        Response response = given()
+                .body(product)
+                .header("Content-Type", "application/json")
+                .log()
+                .all()
+                .when()
+                .post(PRODUCT_ENDPOINT)
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(201));
+        assertThat(id, is(not(nullValue())));
+        assertThat(responseBody.getPrice(), equalTo(product.getPrice()));
+        assertThat(responseBody.getTitle(), equalTo(product.getTitle()));
+        assertThat(responseBody.getCategoryTitle(), equalTo(categoryTitle.trim()));
     }
 
     @Test
     public void postProductNumberCategory() {
-        categoryTitle = "45";
+        String categoryTitle = "45";
         product.setCategoryTitle(categoryTitle);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductEmptyCategory() {
-        categoryTitle = "";
+        String categoryTitle = "";
         product.setCategoryTitle(categoryTitle);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @Test
     public void postProductNullCategory() {
-        categoryTitle = null;
+        String categoryTitle = null;
         product.setCategoryTitle(categoryTitle);
-        id = given()
-                .body(product.toString())
+        Response response = given()
+                .body(product)
                 .header("Content-Type", "application/json")
                 .log()
                 .all()
-                .expect()
-                .statusCode(404)
                 .when()
                 .post(PRODUCT_ENDPOINT)
-                .prettyPeek()
-                .jsonPath()
-                .get("id");
+                .prettyPeek();
+        Product responseBody = response.body().as(Product.class);
+        id = responseBody.getId();
+        assertThat(response.statusCode(), equalTo(404));
     }
 
     @AfterEach
