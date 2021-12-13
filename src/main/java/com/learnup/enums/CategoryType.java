@@ -8,9 +8,10 @@ public enum CategoryType {
     FURNITURE(3, "Furniture");
 
     @Getter
-    int id;
+    private int id;
     @Getter
-    String categoryName;
+    private String categoryName;
+
     CategoryType(int id, String categoryName) {
         this.id = id;
         this.categoryName = categoryName;
