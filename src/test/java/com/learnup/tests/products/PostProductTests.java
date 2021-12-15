@@ -1,9 +1,12 @@
 package com.learnup.tests.products;
 
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.javafaker.Faker;
+import com.learnup.asserts.IsProduct;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBody;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.junit.jupiter.api.AfterEach;
@@ -14,6 +17,8 @@ import java.io.IOException;
 
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT;
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT_ID;
+import static com.learnup.asserts.IsCategoryExists.isCategoryExists;
+import static com.learnup.asserts.IsProduct.*;
 import static com.learnup.enums.CategoryType.*;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.Method.*;
@@ -26,7 +31,6 @@ public class PostProductTests extends BaseTest {
     private Integer id;
     private RequestSpecification postProductRequestSpec;
     private ResponseSpecification postProductResponseSpec;
-    private ResponseSpecification postProductFailResponseSpec;
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -36,12 +40,21 @@ public class PostProductTests extends BaseTest {
                 .title(faker.food().dish())
                 .categoryTitle(FOOD.getCategoryName())
                 .build();
-        postProductFailResponseSpec = productFailResponseSpec_404;
     }
 
     public void setSpec() {
         postProductRequestSpec = getPostProductRequestSpec(product);
-        postProductResponseSpec = getPostProductResponseSpec(product, POST);
+        postProductResponseSpec = getPostProductResponseSpec(product);
+    }
+
+    public void setIdForDelete(Response response) {
+        if (checkProduct(response)) {
+            id = response.body().as(Product.class).getId();
+        }
+    }
+
+    public boolean checkProduct(Response response) {
+        return isProduct().matches(response);
     }
 
     @Test
@@ -50,8 +63,7 @@ public class PostProductTests extends BaseTest {
         Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -61,8 +73,7 @@ public class PostProductTests extends BaseTest {
         Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -72,41 +83,37 @@ public class PostProductTests extends BaseTest {
         Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
     public void postProductNegativePrice() {
         product.setPrice(-500);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
     public void postProductZeroPrice() {
         product.setPrice(0);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
     public void postProductNullPrice() {
         product.setPrice(null);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -117,8 +124,7 @@ public class PostProductTests extends BaseTest {
         Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -129,8 +135,7 @@ public class PostProductTests extends BaseTest {
         Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -141,8 +146,7 @@ public class PostProductTests extends BaseTest {
         Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -150,11 +154,10 @@ public class PostProductTests extends BaseTest {
         String title = "";
         product.setTitle(title);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -162,11 +165,10 @@ public class PostProductTests extends BaseTest {
         String title = null;
         product.setTitle(title);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -174,11 +176,10 @@ public class PostProductTests extends BaseTest {
         String title = "45";
         product.setTitle(title);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -186,11 +187,11 @@ public class PostProductTests extends BaseTest {
         String categoryTitle = "Car";
         product.setCategoryTitle(categoryTitle);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        assertThat(categoryTitle, is(not(isCategoryExists())));
+        setIdForDelete(response);
     }
 
     @Test
@@ -198,12 +199,11 @@ public class PostProductTests extends BaseTest {
         String categoryTitle = " Food";
         product.setCategoryTitle(categoryTitle);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
-        assertThat(response.statusCode(), equalTo(201));
+        assertThat(response.body().as(Product.class).getCategoryTitle(), isCategoryExists());
+        setIdForDelete(response);
     }
 
     @Test
@@ -211,11 +211,11 @@ public class PostProductTests extends BaseTest {
         String categoryTitle = "Food ";
         product.setCategoryTitle(categoryTitle);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        assertThat(response.body().as(Product.class).getCategoryTitle(), isCategoryExists());
+        setIdForDelete(response);
     }
 
     @Test
@@ -223,11 +223,10 @@ public class PostProductTests extends BaseTest {
         String categoryTitle = "45";
         product.setCategoryTitle(categoryTitle);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
@@ -235,32 +234,32 @@ public class PostProductTests extends BaseTest {
         String categoryTitle = "";
         product.setCategoryTitle(categoryTitle);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @Test
-    public void postProductNullCategory() {
+    public void postProductNullCategory() throws UnrecognizedPropertyException {
         String categoryTitle = null;
         product.setCategoryTitle(categoryTitle);
         setSpec();
-        Response response = given(postProductRequestSpec, postProductFailResponseSpec)
+        Response response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        Product responseBody = response.body().as(Product.class);
-        id = responseBody.getId();
+        setIdForDelete(response);
     }
 
     @AfterEach
     public void tearDown() {
-        given()
-                .response()
-                .spec(deleteProductResponseSpec)
-                .when()
-                .delete(PRODUCT_ENDPOINT_ID, id)
-                .prettyPeek();
+        if (id != null) {
+            given()
+                    .response()
+                    .spec(deleteProductResponseSpec)
+                    .when()
+                    .delete(PRODUCT_ENDPOINT_ID, id)
+                    .prettyPeek();
+        }
     }
 }

@@ -17,8 +17,6 @@ import static com.learnup.Endpoints.PRODUCT_ENDPOINT_ID;
 import static com.learnup.enums.CategoryType.FOOD;
 import static com.learnup.enums.CategoryType.FURNITURE;
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.Method.POST;
-import static io.restassured.http.Method.PUT;
 
 public class PutProductTests extends BaseTest {
     private Product product;
@@ -39,7 +37,7 @@ public class PutProductTests extends BaseTest {
                 .build();
 
         postProductRequestSpec = getPostProductRequestSpec(product);
-        postProductResponseSpec = getPostProductResponseSpec(product, POST);
+        postProductResponseSpec = getPostProductResponseSpec(product);
         postProduct();
 
         productPut = Product.builder()
@@ -48,12 +46,11 @@ public class PutProductTests extends BaseTest {
                 .title(faker.food().dish())
                 .categoryTitle(FURNITURE.getCategoryName())
                 .build();
-        setSpecPut();
     }
 
     public void setSpecPut() {
         putProductRequestSpec = getPostProductRequestSpec(productPut);
-        putProductResponseSpec = getPostProductResponseSpec(productPut, PUT);
+        putProductResponseSpec = getPostProductResponseSpec(productPut);
     }
 
     public void postProduct() {
@@ -67,6 +64,7 @@ public class PutProductTests extends BaseTest {
 
     @Test
     public void putProductPositive() {
+        setSpecPut();
         Response response = given(putProductRequestSpec, putProductResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
@@ -103,7 +101,7 @@ public class PutProductTests extends BaseTest {
     public void putProductInvalidId() {
         productPut.setId(-1);
         setSpecPut();
-        Response response = given(putProductRequestSpec, productFailResponseSpec_400)
+        Response response = given(putProductRequestSpec, productFailResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
     }
@@ -111,10 +109,11 @@ public class PutProductTests extends BaseTest {
     @Test
     public void putProductDeleteId() {
         tearDown();
-        Response response = given(putProductRequestSpec, productFailResponseSpec_400)
+        setSpecPut();
+        Response response = given(putProductRequestSpec, productFailResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
-        postProduct();
+        id = null;
     }
 
     @Test
@@ -129,13 +128,15 @@ public class PutProductTests extends BaseTest {
 
     @AfterEach
     public void tearDown() {
-        given()
-                .response()
-                .spec(deleteProductResponseSpec)
-                .when()
-                .delete(PRODUCT_ENDPOINT_ID, id)
-                .prettyPeek()
-                .then()
-                .statusCode(200);
+        if (id != null) {
+            given()
+                    .response()
+                    .spec(deleteProductResponseSpec)
+                    .when()
+                    .delete(PRODUCT_ENDPOINT_ID, id)
+                    .prettyPeek()
+                    .then()
+                    .statusCode(200);
+        }
     }
 }
