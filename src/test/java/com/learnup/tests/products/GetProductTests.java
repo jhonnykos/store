@@ -1,6 +1,7 @@
 package com.learnup.tests.products;
 
 import com.github.javafaker.Faker;
+import com.learnup.asserts.IsProductArray;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
 import io.restassured.response.Response;
@@ -11,10 +12,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT;
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT_ID;
+import static com.learnup.asserts.IsCategoryExists.isCategoryExists;
+import static com.learnup.asserts.IsProductArray.isProductArray;
 import static com.learnup.enums.CategoryType.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
@@ -31,7 +35,6 @@ public class GetProductTests extends BaseTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-
         Faker faker = new Faker();
         product = Product.builder()
                 .price(500)
@@ -40,7 +43,7 @@ public class GetProductTests extends BaseTest {
                 .build();
 
         postProductRequestSpec = getPostProductRequestSpec(product);
-        postProductResponseSpec = getPostProductResponseSpec(product, POST);
+        postProductResponseSpec = getPostProductResponseSpec(product);
         postProduct();
     }
 
@@ -55,12 +58,11 @@ public class GetProductTests extends BaseTest {
 
     @Test
     public void getAllProducts() {
-        Response response =
-                when()
-                        .get(PRODUCT_ENDPOINT)
-                        .prettyPeek();
+        Response response = when()
+                .get(PRODUCT_ENDPOINT)
+                .prettyPeek();
         List responseBody = response.body().as(List.class);
-        assertThat(responseBody.size() >= 1, equalTo(true));
+        assertThat(responseBody, isProductArray());
     }
 
     @Test
@@ -70,6 +72,8 @@ public class GetProductTests extends BaseTest {
                         .get(PRODUCT_ENDPOINT_ID, id)
                         .prettyPeek();
         Product responseBody = response.as(Product.class);
+        assertThat(responseBody.getCategoryTitle(), isCategoryExists());
+        assertThat(responseBody.getId(), equalTo(id));
     }
 
     @Test
@@ -77,18 +81,18 @@ public class GetProductTests extends BaseTest {
         tearDown();
         Response response = given()
                 .response()
-                .spec(productFailResponseSpec_404)
+                .spec(productFailResponseSpec)
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, id)
                 .prettyPeek();
-        postProduct();
+        id = null;
     }
 
     @Test
     public void getProductNegativeId() {
         Response response = given()
                 .response()
-                .spec(productFailResponseSpec_404)
+                .spec(productFailResponseSpec)
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, -id)
                 .prettyPeek();
@@ -98,7 +102,7 @@ public class GetProductTests extends BaseTest {
     public void getProductStringId() {
         Response response = given()
                 .response()
-                .spec(productFailResponseSpec_400)
+                .spec(productFailResponseSpec)
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, "seven")
                 .prettyPeek();
@@ -108,7 +112,7 @@ public class GetProductTests extends BaseTest {
     public void getProductStringNullId() {
         Response response = given()
                 .response()
-                .spec(productFailResponseSpec_400)
+                .spec(productFailResponseSpec)
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, "null")
                 .prettyPeek();
@@ -116,11 +120,13 @@ public class GetProductTests extends BaseTest {
 
     @AfterEach
     public void tearDown() {
-        given()
-                .response()
-                .spec(deleteProductResponseSpec)
-                .when()
-                .delete(PRODUCT_ENDPOINT_ID, id)
-                .prettyPeek();
+        if (id != null) {
+            given()
+                    .response()
+                    .spec(deleteProductResponseSpec)
+                    .when()
+                    .delete(PRODUCT_ENDPOINT_ID, id)
+                    .prettyPeek();
+        }
     }
 }

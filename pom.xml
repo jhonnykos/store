@@ -15,6 +15,7 @@
         <javafaker.version>1.0.2</javafaker.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <rest-assured.version>4.4.0</rest-assured.version>
+        <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
     </properties>
 
     <dependencies>
@@ -89,6 +90,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.hamcrest/java-hamcrest -->
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${java-hamcrest.version}</version>
+        </dependency>
 
     </dependencies>
 
