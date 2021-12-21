@@ -1,8 +1,10 @@
 package com.learnup.tests;
 
+import com.google.common.collect.ImmutableMap;
 import com.learnup.asserts.IsStatusCodeFail;
 import com.learnup.asserts.IsStatusCodeSuccess;
 import com.learnup.dto.Product;
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
@@ -19,6 +21,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import static com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnvironmentWriter;
 import static com.learnup.asserts.IsProduct.isProduct;
 import static com.learnup.asserts.IsStatusCodeFail.*;
 import static com.learnup.asserts.IsStatusCodeSuccess.*;
@@ -42,8 +45,11 @@ public abstract class BaseTest {
     @SneakyThrows
     @BeforeAll
     public static void beforeAll() {
+
+        RestAssured.filters(new AllureRestAssured());
         properties.load(new FileInputStream("src/test/resources/application.properties"));
         RestAssured.baseURI = properties.getProperty("baseUri");
+        setAllureEnvironment();
 
         logRequestSpecification = new RequestSpecBuilder()
                 .log(METHOD)
@@ -88,6 +94,7 @@ public abstract class BaseTest {
     public static ResponseSpecification getPostProductResponseSpec(Product product) {
         String title = product.getTitle();
         String categoryTitle = product.getCategoryTitle();
+        Number price = product.getPrice();
 
         if (title != null) {
             title = title.trim();
@@ -96,13 +103,25 @@ public abstract class BaseTest {
             categoryTitle = categoryTitle.trim();
         }
 
+        double priceD = price.doubleValue();
+        if ((int) priceD == priceD) {
+            price = (int) priceD;
+        }
+
         return new ResponseSpecBuilder()
                 .expectStatusCode(isStatusCodeSuccess())
                 .expectStatusLine(containsString("HTTP/1.1 2"))
                 .expectBody(ID, is(not(nullValue())))
                 .expectBody(TITLE, equalTo(title))
-                .expectBody(PRICE, equalTo(product.getPrice()))
+                .expectBody(PRICE, equalTo(price))
                 .expectBody(CATEGORY, equalTo(categoryTitle))
                 .build();
+    }
+
+    protected static void setAllureEnvironment(){
+        allureEnvironmentWriter(
+                ImmutableMap.<String, String>builder()
+                        .put("URL", properties.getProperty("baseUri"))
+                        .build());
     }
 }

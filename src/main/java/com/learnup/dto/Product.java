@@ -16,7 +16,7 @@ public class Product {
     @JsonProperty("title")
     private String title;
     @JsonProperty("price")
-    private Integer price;
+    private Number price;
     @JsonProperty("categoryTitle")
     private String categoryTitle;
 }

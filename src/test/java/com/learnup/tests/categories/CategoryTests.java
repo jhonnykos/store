@@ -3,6 +3,7 @@ package com.learnup.tests.categories;
 import com.learnup.dto.Category;
 import com.learnup.enums.CategoryType;
 import com.learnup.tests.BaseTest;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,9 +19,14 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Epic("Tests for categories")
+@Story("Get Category tests")
+@Severity(SeverityLevel.MINOR)
 public class CategoryTests extends BaseTest {
 
     @Test
+    @Description("Получить категорию Food")
+    @Step("Get category")
     public void getCategory() {
         ValidatableResponse validatableResponse =
                 when()
@@ -31,6 +37,8 @@ public class CategoryTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить категорию Food с помощью спецификации")
+    @Step("Get category")
     public void getCategoryResponse() {
         given()
                 .response()
@@ -40,6 +48,8 @@ public class CategoryTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить категорию Food и применить assertThat")
+    @Step("Get category")
     public void getCategoryWithAsserts() {
         Response response =
                 when()
@@ -51,6 +61,8 @@ public class CategoryTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить категорию Food и применить as")
+    @Step("Get category")
     public void getCategoryWithAssertsAfterTests() {
         Category response =
                 when()
