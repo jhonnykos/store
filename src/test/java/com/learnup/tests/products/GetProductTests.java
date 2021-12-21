@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.learnup.asserts.IsProductArray;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -26,6 +27,9 @@ import static io.restassured.http.Method.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+@Epic("Tests for products")
+@Story("Get Product tests")
+@Severity(SeverityLevel.BLOCKER)
 public class GetProductTests extends BaseTest {
 
     private Product product;
@@ -57,6 +61,8 @@ public class GetProductTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить все продукты")
+    @Step("Get all products")
     public void getAllProducts() {
         Response response = when()
                 .get(PRODUCT_ENDPOINT)
@@ -66,6 +72,8 @@ public class GetProductTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить продукт по id")
+    @Step("Get product")
     public void getProductPositive() {
         Response response =
                 when()
@@ -77,6 +85,8 @@ public class GetProductTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить продукт по id, который удален или не создан")
+    @Step("Get product that doesn't exist")
     public void getProductNonExist() {
         tearDown();
         Response response = given()
@@ -89,6 +99,8 @@ public class GetProductTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить продукт по отрицательному id")
+    @Step("Get product with negative id")
     public void getProductNegativeId() {
         Response response = given()
                 .response()
@@ -99,6 +111,8 @@ public class GetProductTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить продукт по строковому id")
+    @Step("Get product with string id")
     public void getProductStringId() {
         Response response = given()
                 .response()
@@ -109,6 +123,8 @@ public class GetProductTests extends BaseTest {
     }
 
     @Test
+    @Description("Получить продукт по id равному null")
+    @Step("Get product with null id")
     public void getProductStringNullId() {
         Response response = given()
                 .response()

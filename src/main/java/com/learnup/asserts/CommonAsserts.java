@@ -1,6 +1,7 @@
 package com.learnup.asserts;
 
 import com.learnup.dto.Product;
+import io.qameta.allure.Step;
 import lombok.experimental.UtilityClass;
 
 import static com.learnup.asserts.IsCategoryExists.isCategoryExists;
@@ -10,6 +11,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @UtilityClass
 public class CommonAsserts {
+
+    @Step
     public Integer postProductPositiveAsserts(Product product, Product responseBody){
         Integer id = responseBody.getId();
         assertThat(id, is(not(nullValue())));

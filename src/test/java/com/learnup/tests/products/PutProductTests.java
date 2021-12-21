@@ -3,6 +3,7 @@ package com.learnup.tests.products;
 import com.github.javafaker.Faker;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
@@ -18,6 +19,9 @@ import static com.learnup.enums.CategoryType.FOOD;
 import static com.learnup.enums.CategoryType.FURNITURE;
 import static io.restassured.RestAssured.given;
 
+@Epic("Tests for products")
+@Story("Put Product tests")
+@Severity(SeverityLevel.NORMAL)
 public class PutProductTests extends BaseTest {
     private Product product;
     private Product productPut;
@@ -63,6 +67,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product")
     public void putProductPositive() {
         setSpecPut();
         Response response = given(putProductRequestSpec, putProductResponseSpec)
@@ -71,6 +76,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product where title is the same")
     public void putProductSameTitle() {
         productPut.setTitle(product.getTitle());
         setSpecPut();
@@ -80,6 +86,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product where price is the same")
     public void putProductSamePrice() {
         productPut.setPrice(product.getPrice());
         setSpecPut();
@@ -89,6 +96,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product where category is the same")
     public void putProductSameCategory() {
         productPut.setCategoryTitle(product.getCategoryTitle());
         setSpecPut();
@@ -98,6 +106,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product with invalid id")
     public void putProductInvalidId() {
         productPut.setId(-1);
         setSpecPut();
@@ -107,6 +116,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product with id that was deleted")
     public void putProductDeleteId() {
         tearDown();
         setSpecPut();
@@ -117,6 +127,7 @@ public class PutProductTests extends BaseTest {
     }
 
     @Test
+    @Step("Put product where all fields is the same")
     public void putProductSameProduct() {
         productPut = product;
         productPut.setId(id);
