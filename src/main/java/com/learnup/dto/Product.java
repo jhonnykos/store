@@ -32,7 +32,7 @@ import lombok.Data;
 public class Product {
     private Integer id;
     private String title;
-    private Integer price;
+    private Number price;
     private String categoryTitle;
 
     @Override

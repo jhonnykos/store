@@ -109,6 +109,62 @@ public class PostProductTests {
     }
 
     @Test
+    public void postProductDecimalPrice() {
+        product.setPrice(100.25);
+        id = given()
+                .body(product.toString())
+                .header("Content-Type", "application/json")
+                .log()
+                .all()
+                .expect()
+                .statusCode(201)
+                .body("title", equalTo(title), "price", equalTo(100.25),
+                        "categoryTitle", equalTo(categoryTitle))
+                .when()
+                .post(PRODUCT_ENDPOINT)
+                .prettyPeek()
+                .jsonPath()
+                .get("id");
+    }
+
+    @Test
+    public void postProductDecimalPriceZero() {
+        product.setPrice(100.00);
+        id = given()
+                .body(product.toString())
+                .header("Content-Type", "application/json")
+                .log()
+                .all()
+                .expect()
+                .statusCode(201)
+                .body("title", equalTo(title), "price", equalTo(100),
+                        "categoryTitle", equalTo(categoryTitle))
+                .when()
+                .post(PRODUCT_ENDPOINT)
+                .prettyPeek()
+                .jsonPath()
+                .get("id");
+    }
+
+    @Test
+    public void postProductDecimalPrice3() {
+        product.setPrice(100.251);
+        id = given()
+                .body(product.toString())
+                .header("Content-Type", "application/json")
+                .log()
+                .all()
+                .expect()
+                .statusCode(404)
+                .when()
+                .post(PRODUCT_ENDPOINT)
+                .prettyPeek()
+                .jsonPath()
+                .get("id");
+    }
+
+
+    @Test
     public void postProductTitleWithSpaces() {
         title = "Bean sprout";
         product.setTitle(title);
