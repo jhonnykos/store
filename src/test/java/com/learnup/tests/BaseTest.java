@@ -3,7 +3,10 @@ package com.learnup.tests;
 import com.google.common.collect.ImmutableMap;
 import com.learnup.asserts.IsStatusCodeFail;
 import com.learnup.asserts.IsStatusCodeSuccess;
+import com.learnup.db.dao.CategoriesMapper;
+import com.learnup.db.dao.ProductsMapper;
 import com.learnup.dto.Product;
+import com.learnup.utils.DbUtils;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
@@ -41,6 +44,8 @@ public abstract class BaseTest {
     public static ResponseSpecification deleteProductResponseSpec;
     public static ResponseSpecification categoriesResponseSpec;
     public static ResponseSpecification productFailResponseSpec;
+    public static ProductsMapper productsMapper;
+    public static CategoriesMapper categoriesMapper;
 
     @SneakyThrows
     @BeforeAll
@@ -82,6 +87,9 @@ public abstract class BaseTest {
                 .expectStatusCode(isStatusCodeFail())
                 .expectStatusLine(containsString("HTTP/1.1 4"))
                 .build();
+
+        categoriesMapper = DbUtils.getCategoryMapper();
+        productsMapper = DbUtils.getProductsMapper();
     }
 
     public static RequestSpecification getPostProductRequestSpec(Product product) {
@@ -102,10 +110,11 @@ public abstract class BaseTest {
         if (categoryTitle != null) {
             categoryTitle = categoryTitle.trim();
         }
-
-        double priceD = price.doubleValue();
-        if ((int) priceD == priceD) {
-            price = (int) priceD;
+        if(price != null) {
+            double priceD = price.doubleValue();
+            if ((int) priceD == priceD) {
+                price = (int) priceD;
+            }
         }
 
         return new ResponseSpecBuilder()

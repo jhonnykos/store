@@ -1,7 +1,6 @@
 package com.learnup.tests.products;
 
 import com.github.javafaker.Faker;
-import com.learnup.asserts.IsProductArray;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
 import io.qameta.allure.*;
@@ -13,19 +12,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT;
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT_ID;
 import static com.learnup.asserts.IsCategoryExists.isCategoryExists;
 import static com.learnup.asserts.IsProductArray.isProductArray;
+import static com.learnup.asserts.common.ProductDbAsserts.*;
 import static com.learnup.enums.CategoryType.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
-import static io.restassured.http.Method.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Epic("Tests for products")
 @Story("Get Product tests")
@@ -82,6 +81,7 @@ public class GetProductTests extends BaseTest {
         Product responseBody = response.as(Product.class);
         assertThat(responseBody.getCategoryTitle(), isCategoryExists());
         assertThat(responseBody.getId(), equalTo(id));
+        productDbAsserts(responseBody, productsMapper);
     }
 
     @Test
@@ -95,6 +95,7 @@ public class GetProductTests extends BaseTest {
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, id)
                 .prettyPeek();
+        assertFalse(isProductExistDbByIdAssert(productsMapper, id));
         id = null;
     }
 
@@ -102,12 +103,15 @@ public class GetProductTests extends BaseTest {
     @Description("Получить продукт по отрицательному id")
     @Step("Get product with negative id")
     public void getProductNegativeId() {
+        tearDown();
+        id = -id;
         Response response = given()
                 .response()
                 .spec(productFailResponseSpec)
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, -id)
                 .prettyPeek();
+        assertFalse(isProductExistDbByIdAssert(productsMapper, id));
     }
 
     @Test
@@ -126,23 +130,21 @@ public class GetProductTests extends BaseTest {
     @Description("Получить продукт по id равному null")
     @Step("Get product with null id")
     public void getProductStringNullId() {
+        tearDown();
+        id = null;
         Response response = given()
                 .response()
                 .spec(productFailResponseSpec)
                 .when()
                 .get(PRODUCT_ENDPOINT_ID, "null")
                 .prettyPeek();
+        assertFalse(isProductExistDbByIdAssert(productsMapper, id));
     }
 
     @AfterEach
     public void tearDown() {
         if (id != null) {
-            given()
-                    .response()
-                    .spec(deleteProductResponseSpec)
-                    .when()
-                    .delete(PRODUCT_ENDPOINT_ID, id)
-                    .prettyPeek();
+            productsMapper.deleteByPrimaryKey(id.longValue());
         }
     }
 }

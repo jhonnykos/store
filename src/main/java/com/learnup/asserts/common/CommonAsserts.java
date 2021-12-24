@@ -1,4 +1,4 @@
-package com.learnup.asserts;
+package com.learnup.asserts.common;
 
 import com.learnup.dto.Product;
 import io.qameta.allure.Step;
@@ -11,7 +11,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @UtilityClass
 public class CommonAsserts {
-
     @Step
     public Integer postProductPositiveAsserts(Product product, Product responseBody){
         Integer id = responseBody.getId();
