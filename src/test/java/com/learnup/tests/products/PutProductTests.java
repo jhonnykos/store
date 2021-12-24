@@ -1,6 +1,7 @@
 package com.learnup.tests.products;
 
 import com.github.javafaker.Faker;
+import com.learnup.asserts.common.ProductDbAsserts;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
 import io.qameta.allure.*;
@@ -15,9 +16,11 @@ import java.io.IOException;
 
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT;
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT_ID;
+import static com.learnup.asserts.common.ProductDbAsserts.productDbAsserts;
 import static com.learnup.enums.CategoryType.FOOD;
 import static com.learnup.enums.CategoryType.FURNITURE;
 import static io.restassured.RestAssured.given;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @Epic("Tests for products")
 @Story("Put Product tests")
@@ -73,6 +76,7 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, putProductResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -83,6 +87,7 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, putProductResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -93,6 +98,7 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, putProductResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -103,6 +109,7 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, putProductResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -113,6 +120,7 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, productFailResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(productPut, productsMapper));
     }
 
     @Test
@@ -123,6 +131,7 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, productFailResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(productPut, productsMapper));
         id = null;
     }
 
@@ -135,19 +144,13 @@ public class PutProductTests extends BaseTest {
         Response response = given(putProductRequestSpec, putProductResponseSpec)
                 .put(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @AfterEach
     public void tearDown() {
         if (id != null) {
-            given()
-                    .response()
-                    .spec(deleteProductResponseSpec)
-                    .when()
-                    .delete(PRODUCT_ENDPOINT_ID, id)
-                    .prettyPeek()
-                    .then()
-                    .statusCode(200);
+            productsMapper.deleteByPrimaryKey(id.longValue());
         }
     }
 }

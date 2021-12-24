@@ -3,6 +3,7 @@ package com.learnup.tests.products;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.github.javafaker.Faker;
 import com.learnup.asserts.IsProduct;
+import com.learnup.asserts.common.ProductDbAsserts;
 import com.learnup.dto.Product;
 import com.learnup.tests.BaseTest;
 import io.qameta.allure.*;
@@ -20,11 +21,14 @@ import static com.learnup.Endpoints.PRODUCT_ENDPOINT;
 import static com.learnup.Endpoints.PRODUCT_ENDPOINT_ID;
 import static com.learnup.asserts.IsCategoryExists.isCategoryExists;
 import static com.learnup.asserts.IsProduct.*;
+import static com.learnup.asserts.common.ProductDbAsserts.*;
 import static com.learnup.enums.CategoryType.*;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.Method.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Epic("Tests for products")
 @Story("Post Product tests")
@@ -69,6 +73,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -79,6 +84,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -89,6 +95,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -99,6 +106,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -139,6 +147,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -149,6 +158,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -160,6 +170,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -171,6 +182,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -182,6 +194,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, postProductResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -193,6 +206,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -204,6 +218,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -215,6 +230,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -227,6 +243,7 @@ public class PostProductTests extends BaseTest {
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
         assertThat(categoryTitle, is(not(isCategoryExists())));
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -239,6 +256,7 @@ public class PostProductTests extends BaseTest {
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
         assertThat(response.body().as(Product.class).getCategoryTitle(), isCategoryExists());
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -251,6 +269,7 @@ public class PostProductTests extends BaseTest {
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
         assertThat(response.body().as(Product.class).getCategoryTitle(), isCategoryExists());
+        productDbAsserts(response.as(Product.class), productsMapper);
     }
 
     @Test
@@ -262,6 +281,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -273,6 +293,7 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @Test
@@ -284,18 +305,14 @@ public class PostProductTests extends BaseTest {
         response = given(postProductRequestSpec, productFailResponseSpec)
                 .post(PRODUCT_ENDPOINT)
                 .prettyPeek();
+        assertFalse(ProductDbAsserts.isProductExistDbByFieldsAssert(product, productsMapper));
     }
 
     @AfterEach
     public void tearDown() {
         setIdForDelete();
         if (id != null) {
-            given()
-                    .response()
-                    .spec(deleteProductResponseSpec)
-                    .when()
-                    .delete(PRODUCT_ENDPOINT_ID, id)
-                    .prettyPeek();
+            productsMapper.deleteByPrimaryKey(id.longValue());
         }
     }
 }
